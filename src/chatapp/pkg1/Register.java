@@ -1,34 +1,45 @@
 
 package chatapp.pkg1;
+import java.io.FileWriter;
+import java.io.IOException;
 public class Register {
     
+    private String Firstname;
+    private String Lastname;
     private String UserName;
     private String PassWord;
     private String CellNumber;
     
-    // Setter method 
-    public void userName(String UserName){
-        this.UserName = UserName;
-    }
-    public void passWord(String PassWord){
-        this.PassWord = PassWord;
-    }
-    public void Number (String CellNumber){
-        this.CellNumber = CellNumber;
-    } 
     
-    public static boolean Username(String UserName){
-         // Returns true only if username contains "_" and is 5 characters or less
-        return UserName.contains("_")&& UserName.length()<=5;
+    // Setter method 
+    public Register(String firstname, String LastName, String Username, String Password, String Cellnumber){
+        this.Firstname = firstname;
+        this.Lastname = LastName;
+        this.UserName = Username;
+        this.PassWord = Password;
+        this.CellNumber = Cellnumber;
     }
-    public static boolean Password(String PassWord){
-        // Regex explanation:At least one uppercase letter, one lowercase letter, one digit,one special character from [@#$%^&+=]
-        String regex = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$";
-        return PassWord.matches(regex);
+
+    // Getters
+    public String getfirstname() {
+        return Firstname;
     }
-    public static boolean CellNumber(String CellNumber){
-         // Validates South African phone number format (starts with +27 followed by 9 digits)
-        String regex = "^\\+27\\d{9}$";
-        return CellNumber.matches(regex);
+
+    public String getlastname() {
+        return Lastname;
     }
+
+    public String getusername() {
+        return UserName;
+    }
+
+    public String getpassWord() {
+        return PassWord;
+    }
+
+    public String getcellNumber() {
+        return CellNumber;
+    }
+
+    
 }

@@ -1,84 +1,160 @@
 package chatapp.pkg1;
-import java.util.*;
+
+import javax.swing.JOptionPane;
+import java.util.List;
+import java.util.ArrayList;
 
 public class ChatApp1 {
-
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        // Infinite loop to keep the program running until user chooses to exit
-        while (true){
-        // Displaying menu options to the user
-        System.out.println("1. Register");
-        System.out.println("2. Login ");
-        System.out.println("3. Exite ");
-        System.out.println("Please Login or create an account...");
-        String choice = scanner.nextLine();
-          
-        if (choice.equals("1")){
-              System.out.print("Enter Username: ");
-              String UserName = scanner.nextLine();
-    
-              System.out.print("Enter Cell Number: ");
-              String CellNumber = scanner.nextLine();
-    
-              System.out.print("Create Password: ");
-              String PassWord = scanner.nextLine();
-    
-               // Creating Register object and setting user details
-            Register register = new Register();   
-              register.userName(UserName);
-              register.Number(CellNumber);
-              register.passWord(PassWord);
-      
-              System.out.println("===Register===");
-              if(register.Username(UserName)){
-              System.out.println("Username successfully captured.");
-              }else{
-              System.out.println("Username is not correctly formatted. It should contain an underscore( _ ) and be no more than 5 characters.");
-              }
-              if(register.Password(PassWord)){ 
-              System.out.println("Password successfully captured.");
-              }else{
-              System.out.println("Password is not correctly formatted; it must contain at least 8 characters, a capital letter, a number, and a special character.");
-              }
-              if (register.CellNumber(CellNumber)){
-              System.out.println("Cell phone number successfully added.");
-              }else{
-              System.out.println("Cell phone number incorrect formatted or doses not contain international code (+27XXXXXXXXX).");
-              }
-              break;// Exit loop after registration
+        // Create an instance of the Login class to handle registration and login
+        Login loginSystem = new Login();
+        boolean isLogin = false;
 
-      
-        } else if (choice.equals("2")){
-              System.out.print("Enter Username: ");
-              String UserName = scanner.nextLine();
+        // Loop to display the initial menu until the user logs in or exits
+        while (true) {
+            String choice = JOptionPane.showInputDialog(
+                    "Welcome to ChatApp\n\n" +
+                    "1. Register\n" +
+                    "2. Login\n" +
+                    "3. Exit\n\n" +
+                    "Please Login or Create an account...");
+            if (choice == null) return;
 
-              System.out.print("Enter Password: ");
-              String PassWord = scanner.nextLine();
-              
-              // Creating Login object and setting login credentials
-            Login log = new Login(); 
-              log.userName(UserName);
-              log.passWord(PassWord);
-     
-              System.out.println("===Login===");
-              if(log.Username(UserName)){
-              System.out.println("Welcome " + UserName + " it is great to see you");
-              }else{
-              System.out.println("Username or Password is incorrect, please try again");
-              }
-              break; 
-              
+            // Option 1: Register a new user
+            if (choice.equals("1")) {
+                String firstName = JOptionPane.showInputDialog("Enter First Name:");
+                String lastName = JOptionPane.showInputDialog("Enter Last Name:");
+                String username = JOptionPane.showInputDialog("Enter Username (must include _ and be <= 5 characters):");
+                String phone = JOptionPane.showInputDialog("Enter Phone Number (e.g. +27XXXXXXXXX):");
+                String password = JOptionPane.showInputDialog("Create Password (must include 8+ characters, 1 capital, 1 number, 1 special):");
+
+                // Call method to register user and show result
+                String registrationResult = loginSystem.registerUser(firstName, lastName, username, password, phone);
+                JOptionPane.showMessageDialog(null, registrationResult);
+                // Show the main menu after registration
+                showMainMenu();
+                break;
                 
-        } else if (choice.equals("3")){
-            System.out.println("Goodbye...");
-            break;
-        } else {
-            System.out.println("Invalid choice");
-            scanner.close();
-            break;
+               // Option 2: User login  
+            } else if (choice.equals("2")) {
+                String loginUsername = JOptionPane.showInputDialog("Enter Username:");
+                String loginPassword = JOptionPane.showInputDialog("Enter Password:");
+                String loginMessage = loginSystem.returnLoginStatus(loginUsername, loginPassword);
+                JOptionPane.showMessageDialog(null, loginMessage);
+                showMainMenu();
+                // If login successful, set flag and exit loop
+                if (loginMessage.equals("Login successful")) {
+                    isLogin = true;
+                    break;
+                }
+                
+              // Option 3: Exit the application  
+            } else if (choice.equals("3")) {
+                JOptionPane.showMessageDialog(null, "Goodbye!");
+                return;
+            } else {
+               // Invalid input 
+                JOptionPane.showMessageDialog(null, "Invalid choice. Please enter 1, 2, or 3.");
+            }
         }
-        }  
+
+        // If user successfully logged in, show the main menu again
+        if (isLogin) {
+            showMainMenu();
+        }
     }
-    
+
+    private static void showMainMenu() {
+        while (true) {
+            // Display main menu options
+            String input = JOptionPane.showInputDialog(
+                    "=== Main Menu ===\n" +
+                    "1. Send Messages\n" +
+                    "2. Show Sent Messages\n" +
+                    "3. Logout\n" +
+                    "Enter your choice:");
+            if (input == null) return;
+
+            switch (input) {
+                case "1":
+                    // Call method to send messages
+                    sendMessages();
+                    break;
+                case "2":
+                    // Show all sent/stored messages
+                    JOptionPane.showMessageDialog(null, message.printMessages());
+                    break;
+                case "3":
+                    // Logout and return to exit main menu loop
+                    JOptionPane.showMessageDialog(null, "You have been logged out.");
+                    return;
+                default:
+                    JOptionPane.showMessageDialog(null, "Invalid choice. Try again.");
+            }
+        }
+    }
+
+    private static void sendMessages() {
+        int numMessages = 0;
+        // Prompt user for number of messages to send
+        try {
+            numMessages = Integer.parseInt(JOptionPane.showInputDialog("How many messages do you want to send?"));
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Invalid number of messages.");
+            return;
+        }
+
+        // Loop for each message
+        for (int i = 0; i < numMessages; i++) {
+            String content;
+            
+            // Prompt and validate message length
+            do {
+                content = JOptionPane.showInputDialog("Enter message " + (i + 1) + " (max 50 characters):");
+                if (content == null) return;
+                if (content.length() > 50) {
+                    JOptionPane.showMessageDialog(null, "Message too long. Please keep it within 50 characters.");
+                }
+            } while (content.length() > 50);
+            
+            // Prompt for recipient number
+            String recipient = JOptionPane.showInputDialog("Enter recipient for message " + (i + 1) + ":");
+            if (recipient == null) return;
+
+            message msg = new message(recipient, content);
+
+            // Provide action options: send, disregard, store
+            String[] options = {"Send", "Disregard", "Store"};
+            int action = JOptionPane.showOptionDialog(null, "Choose what to do with the message:",
+                    "Message Option", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
+                    null, options, options[0]);
+
+            String result = "";
+            switch (action) {
+                case 0:
+                    result = message.sendMessage(msg, "send");
+                    break;
+                case 1:
+                    result = message.sendMessage(msg, "disregard");
+                    break;
+                case 2:
+                    result = message.sendMessage(msg, "store");
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(null, "No action selected.");
+                    continue;
+            }
+ 
+             // Show message details and action result
+            JOptionPane.showMessageDialog(null,
+                    "Message ID: " + msg.getMessageId() + "\n" +
+                    "Recipient: " + msg.getRecipient() + "\n" +
+                    "Message: " + msg.getContent() + "\n" +
+                    "Hash: " + msg.getHash() + "\n" +
+                    result);
+        }
+
+        // Show total number of messages processed
+        JOptionPane.showMessageDialog(null, "Total messages sent: " + message.returnTotalMessages());
+    }
 }
