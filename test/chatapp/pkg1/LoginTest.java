@@ -131,5 +131,19 @@ public class LoginTest {
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
+
+    /**
+     * Test of getCurrentUser method, of class Login.
+     */
+    @Test
+    public void testGetCurrentUser() {
+        System.out.println("getCurrentUser");
+        Login instance = new Login();
+        String expResult = "";
+        String result = instance.getCurrentUser();
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
     
 }

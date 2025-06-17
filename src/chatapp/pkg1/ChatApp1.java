@@ -1,9 +1,5 @@
 package chatapp.pkg1;
-
 import javax.swing.JOptionPane;
-import java.util.List;
-import java.util.ArrayList;
-
 public class ChatApp1 {
     public static void main(String[] args) {
         // Create an instance of the Login class to handle registration and login
@@ -20,73 +16,86 @@ public class ChatApp1 {
                     "Please Login or Create an account...");
             if (choice == null) return;
 
-            // Option 1: Register a new user
-            if (choice.equals("1")) {
-                String firstName = JOptionPane.showInputDialog("Enter First Name:");
-                String lastName = JOptionPane.showInputDialog("Enter Last Name:");
-                String username = JOptionPane.showInputDialog("Enter Username (must include _ and be <= 5 characters):");
-                String phone = JOptionPane.showInputDialog("Enter Phone Number (e.g. +27XXXXXXXXX):");
-                String password = JOptionPane.showInputDialog("Create Password (must include 8+ characters, 1 capital, 1 number, 1 special):");
-
-                // Call method to register user and show result
-                String registrationResult = loginSystem.registerUser(firstName, lastName, username, password, phone);
-                JOptionPane.showMessageDialog(null, registrationResult);
-                // Show the main menu after registration
-                showMainMenu();
-                break;
-                
-               // Option 2: User login  
-            } else if (choice.equals("2")) {
-                String loginUsername = JOptionPane.showInputDialog("Enter Username:");
-                String loginPassword = JOptionPane.showInputDialog("Enter Password:");
-                String loginMessage = loginSystem.returnLoginStatus(loginUsername, loginPassword);
-                JOptionPane.showMessageDialog(null, loginMessage);
-                showMainMenu();
-                // If login successful, set flag and exit loop
-                if (loginMessage.equals("Login successful")) {
-                    isLogin = true;
+           switch (choice.trim()) {
+                case "1":
+                    registerFlow(loginSystem);
                     break;
-                }
-                
-              // Option 3: Exit the application  
-            } else if (choice.equals("3")) {
-                JOptionPane.showMessageDialog(null, "Goodbye!");
-                return;
-            } else {
-               // Invalid input 
-                JOptionPane.showMessageDialog(null, "Invalid choice. Please enter 1, 2, or 3.");
+                case "2":
+                    loginFlow(loginSystem);
+                    break;
+                case "3":
+                    JOptionPane.showMessageDialog(null, "Goodbye!");
+                    return;
+                default:
+                    JOptionPane.showMessageDialog(null, "Invalid choice. Please enter 1, 2, or 3.");
             }
-        }
-
-        // If user successfully logged in, show the main menu again
-        if (isLogin) {
-            showMainMenu();
         }
     }
 
-    private static void showMainMenu() {
+    private static void registerFlow(Login loginSystem) {
+        String firstName = JOptionPane.showInputDialog("Enter First Name:");
+        String lastName = JOptionPane.showInputDialog("Enter Last Name:");
+        String username = JOptionPane.showInputDialog("Enter Username (must include _ and be <= 5 characters):");
+        String phone = JOptionPane.showInputDialog("Enter Phone Number (e.g. +27XXXXXXXXX):");
+        String password = JOptionPane.showInputDialog("Create Password (8+ chars, 1 capital, 1 number, 1 special):");
+
+        String result = loginSystem.registerUser(firstName, lastName, username, password, phone);
+        JOptionPane.showMessageDialog(null, result);
+        
+    }
+
+    private static void loginFlow(Login loginSystem) {
+        String username = JOptionPane.showInputDialog("Enter Username:");
+        String password = JOptionPane.showInputDialog("Enter Password:");
+
+        String status = loginSystem.returnLoginStatus(username, password);
+        JOptionPane.showMessageDialog(null, status);
+
+        if (status.equals("Login successful")) {
+            showMainMenu(loginSystem);
+        }
+    }
+
+    private static void showMainMenu(Login loginSystem) {
         while (true) {
-            // Display main menu options
             String input = JOptionPane.showInputDialog(
                     "=== Main Menu ===\n" +
+                    "Logged in as: " + loginSystem.getCurrentUser() + "\n\n" +
                     "1. Send Messages\n" +
                     "2. Show Sent Messages\n" +
-                    "3. Logout\n" +
+                    "3. Message Statistics\n" +
+                    "4. Search Messages\n" +
+                    "5. Delete Message\n" +
+                    "6. Generate Report\n" +
+                    "7. Logout\n" +
                     "Enter your choice:");
-            if (input == null) return;
 
-            switch (input) {
+            if (input == null || input.isEmpty()) continue;
+
+            switch (input.trim()) {
                 case "1":
-                    // Call method to send messages
                     sendMessages();
                     break;
                 case "2":
-                    // Show all sent/stored messages
                     JOptionPane.showMessageDialog(null, message.printMessages());
                     break;
                 case "3":
-                    // Logout and return to exit main menu loop
-                    JOptionPane.showMessageDialog(null, "You have been logged out.");
+                    showStatisticsMenu();
+                    break;
+                case "4":
+                    showSearchMenu();
+                    break;
+                case "5":
+                    String hash = JOptionPane.showInputDialog("Enter message hash to delete:");
+                    if (hash != null) {
+                        JOptionPane.showMessageDialog(null, message.deleteByHash(hash));
+                    }
+                    break;
+                case "6":
+                    message.displayMessageReport();
+                    break;
+                case "7":
+                    JOptionPane.showMessageDialog(null, "Logged out.");
                     return;
                 default:
                     JOptionPane.showMessageDialog(null, "Invalid choice. Try again.");
@@ -95,41 +104,39 @@ public class ChatApp1 {
     }
 
     private static void sendMessages() {
-        int numMessages = 0;
-        // Prompt user for number of messages to send
+        int numMessages;
         try {
             numMessages = Integer.parseInt(JOptionPane.showInputDialog("How many messages do you want to send?"));
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Invalid number of messages.");
+            JOptionPane.showMessageDialog(null, "Invalid number.");
             return;
         }
 
-        // Loop for each message
         for (int i = 0; i < numMessages; i++) {
             String content;
-            
-            // Prompt and validate message length
             do {
-                content = JOptionPane.showInputDialog("Enter message " + (i + 1) + " (max 50 characters):");
+                content = JOptionPane.showInputDialog("Enter message " + (i + 1) + " (max 150 characters):");
                 if (content == null) return;
-                if (content.length() > 50) {
-                    JOptionPane.showMessageDialog(null, "Message too long. Please keep it within 50 characters.");
+                if (content.length() > 150) {
+                    JOptionPane.showMessageDialog(null, "Message too long. Please limit to 150 characters.");
                 }
-            } while (content.length() > 50);
-            
-            // Prompt for recipient number
-            String recipient = JOptionPane.showInputDialog("Enter recipient for message " + (i + 1) + ":");
+            } while (content.length() > 150);
+
+            String recipient = JOptionPane.showInputDialog("Enter recipient for message " + (i + 1) + "(e.g. +27XXXXXXXXX):");
             if (recipient == null) return;
 
             message msg = new message(recipient, content);
-
-            // Provide action options: send, disregard, store
             String[] options = {"Send", "Disregard", "Store"};
-            int action = JOptionPane.showOptionDialog(null, "Choose what to do with the message:",
-                    "Message Option", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
-                    null, options, options[0]);
+            int action = JOptionPane.showOptionDialog(null,
+                    "Choose an action for the message:",
+                    "Message Options",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    options,
+                    options[0]);
 
-            String result = "";
+            String result;
             switch (action) {
                 case 0:
                     result = message.sendMessage(msg, "send");
@@ -144,8 +151,7 @@ public class ChatApp1 {
                     JOptionPane.showMessageDialog(null, "No action selected.");
                     continue;
             }
- 
-             // Show message details and action result
+
             JOptionPane.showMessageDialog(null,
                     "Message ID: " + msg.getMessageId() + "\n" +
                     "Recipient: " + msg.getRecipient() + "\n" +
@@ -154,7 +160,62 @@ public class ChatApp1 {
                     result);
         }
 
-        // Show total number of messages processed
         JOptionPane.showMessageDialog(null, "Total messages sent: " + message.returnTotalMessages());
     }
-}
+
+    private static void showStatisticsMenu() {
+        String choice = JOptionPane.showInputDialog(
+                "=== Message Statistics ===\n" +
+                "1. Display senders and recipients\n" +
+                "2. Find longest message\n" +
+                "3. Back to main menu\n" +
+                "Enter your choice:");
+
+        if (choice == null) return;
+
+        switch (choice.trim()) {
+            case "1":
+                JOptionPane.showMessageDialog(null, message.displaySendersAndRecipients());
+                break;
+            case "2":
+                JOptionPane.showMessageDialog(null, message.findLongestMessage());
+                break;
+            case "3":
+                return;
+            default:
+                JOptionPane.showMessageDialog(null, "Invalid choice.");
+        }
+    }
+
+    private static void showSearchMenu() {
+        String choice = JOptionPane.showInputDialog(
+                "=== Search Messages ===\n" +
+                "1. Search by message ID\n" +
+                "2. Search by recipient\n" +
+                "3. Back to main menu\n" +
+                "Enter your choice:");
+
+        if (choice == null) return;
+
+        switch (choice.trim()) {
+            case "1": {
+                String id = JOptionPane.showInputDialog("Enter message ID:");
+                if (id != null) {
+                    JOptionPane.showMessageDialog(null, message.searchByMessageId(id));
+                }
+                break;
+            }
+            case "2": {
+                String recipient = JOptionPane.showInputDialog("Enter recipient:");
+                if (recipient != null) {
+                    JOptionPane.showMessageDialog(null, message.searchByRecipient(recipient));
+                }
+                break;
+            }
+            case "3":
+                return;
+            default:
+                JOptionPane.showMessageDialog(null, "Invalid choice.");
+        }
+    }
+}  
